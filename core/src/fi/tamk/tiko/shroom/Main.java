@@ -11,10 +11,11 @@ public class Main extends Game {
 	SpriteBatch batch;
 	public BitmapFont font;
 
+
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		font =  new BitmapFont();
+		font =  new BitmapFont(Gdx.files.internal("font.txt"));
 		this.setScreen(new MenuScreen(this));
 	}
 
@@ -27,5 +28,6 @@ public class Main extends Game {
 	public void dispose () {
 		batch.dispose();
 		font.dispose();
+
 	}
 }

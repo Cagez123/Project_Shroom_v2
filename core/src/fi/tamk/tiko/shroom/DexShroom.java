@@ -22,9 +22,9 @@ public class DexShroom extends Sprite {
 
     public DexShroom() {
         playTexture = new Texture("purple.png");
-        height = playTexture.getHeight()/4;
-        width = playTexture.getWidth()/4;
-        setX(200);
+        height = playTexture.getHeight()/6;
+        width = playTexture.getWidth()/6;
+        setX(280);
         setY(20);
         setBounds(getX(),getY(),width,height);
     }
@@ -47,6 +47,9 @@ public class DexShroom extends Sprite {
     public void draw(SpriteBatch batch){
         move(speedX,speedY);
         batch.draw(new TextureRegion(playTexture),getX(),getY(),width/2,height/2,width,height,1,1,getRotation());
+    }
+    public void dispose() {
+        playTexture.dispose();
     }
 
 }

@@ -23,12 +23,13 @@ public class PlayShroom extends Sprite {
 
 
 
-    public PlayShroom() {
+    public PlayShroom(float x, float y) {
+
         playTexture = new Texture("red.png");
         height = playTexture.getHeight();
         width = playTexture.getWidth();
-        setX(150);
-        setY(300);
+        setX(x);
+        setY(y);
         setBounds(getX(),getY(),width,height);
     }
 
@@ -50,6 +51,10 @@ public class PlayShroom extends Sprite {
     public void draw(SpriteBatch batch){
         move(speedX,speedY);
         batch.draw(new TextureRegion(playTexture),getX(),getY(),width/2,height/2,width,height,1,1,getRotation());
+    }
+
+    public void dispose() {
+        playTexture.dispose();
     }
 
 }

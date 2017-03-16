@@ -37,7 +37,7 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
     public MenuScreen(final Main game) {
 
         this.game = game;
-        playShroom = new PlayShroom();
+        playShroom = new PlayShroom(180, 200);
         highscoreShroom = new HighscoreShroom();
         dexShroom = new DexShroom();
 
@@ -165,7 +165,9 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
 
     @Override
     public void dispose() {
-
+        playShroom.dispose();
+        dexShroom.dispose();
+        highscoreShroom.dispose();
     }
 
     @Override

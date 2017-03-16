@@ -23,10 +23,10 @@ public class HighscoreShroom extends Sprite {
 
     public HighscoreShroom() {
         playTexture = new Texture("yellow.png");
-        height = playTexture.getHeight()/2;
-        width = playTexture.getWidth()/2;
-        setX(80);
-        setY(80);
+        height = playTexture.getHeight()/4;
+        width = playTexture.getWidth()/4;
+        setX(40);
+        setY(100);
         setBounds(getX(),getY(),width,height);
     }
 
@@ -48,6 +48,9 @@ public class HighscoreShroom extends Sprite {
     public void draw(SpriteBatch batch){
         move(speedX,speedY);
         batch.draw(new TextureRegion(playTexture),getX(),getY(),width/2,height/2,width,height,1,1,getRotation());
+    }
+    public void dispose() {
+        playTexture.dispose();
     }
 
 }
