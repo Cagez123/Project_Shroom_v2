@@ -23,8 +23,6 @@ public class EdibleShroom extends Sprite {
     private int random;
     private float gravity = 20f;
 
-    //woot
-
     public EdibleShroom(float x, float y) {
 
         randomTexture();
