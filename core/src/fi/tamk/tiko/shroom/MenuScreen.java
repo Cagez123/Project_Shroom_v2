@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -19,6 +19,7 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
     HighscoreShroom highscoreShroom;
     DexShroom dexShroom;
     OrthographicCamera camera;
+    Texture background;
     boolean play = false;
     boolean highscore = false;
     boolean shroomdex = false;
@@ -37,9 +38,10 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
     public MenuScreen(final Main game) {
 
         this.game = game;
-        playShroom = new PlayShroom(180, 200);
+        playShroom = new PlayShroom(180, 300);
         highscoreShroom = new HighscoreShroom();
         dexShroom = new DexShroom();
+        background = new Texture(Gdx.files.internal("background.jpg"));
 
 
         camera = new OrthographicCamera();
@@ -66,6 +68,8 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
 
 
         game.batch.begin();
+        game.batch.draw(background, -400, 0, background.getWidth(),background.getHeight());
+
         playShroom.draw(game.batch);
         highscoreShroom.draw(game.batch);
         dexShroom.draw(game.batch);
@@ -168,6 +172,7 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
         playShroom.dispose();
         dexShroom.dispose();
         highscoreShroom.dispose();
+        background.dispose();
     }
 
     @Override

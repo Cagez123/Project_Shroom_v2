@@ -21,10 +21,10 @@ public class DexShroom extends Sprite {
 
 
     public DexShroom() {
-        playTexture = new Texture("purple.png");
-        height = playTexture.getHeight()/6;
-        width = playTexture.getWidth()/6;
-        setX(280);
+        playTexture = new Texture("dex200.png");
+        height = playTexture.getHeight();
+        width = playTexture.getWidth();
+        setX(260);
         setY(20);
         setBounds(getX(),getY(),width,height);
     }
