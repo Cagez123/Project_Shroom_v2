@@ -20,10 +20,10 @@ public class EdibleShroom extends Sprite {
     private float rotationAngle;
     private int min = 1;
     private int max = 3;
-    int random;
+    private int random;
     private float gravity = 20f;
 
-
+    //woot
 
     public EdibleShroom(float x, float y) {
 
