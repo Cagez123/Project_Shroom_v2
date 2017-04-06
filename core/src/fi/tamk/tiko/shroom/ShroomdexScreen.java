@@ -23,15 +23,15 @@ public class ShroomdexScreen implements Screen {
 
     public ShroomdexScreen(final Main game) {
         this.game = game;
-        background = new Texture(Gdx.files.internal("background.jpg"));
+        background = new Texture(Gdx.files.internal("forest.png"));
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 480, 800);
-        menu = new Texture(Gdx.files.internal("back-icon.png"));
+        menu = new Texture(Gdx.files.internal("menuButton.png"));
 
         menuRectangle = new Rectangle();
-        menuRectangle.setX(480 - menu.getWidth()/6);
-        menuRectangle.setY(800 - menu.getHeight()/6);
-        menuRectangle.setSize(menu.getWidth()/6, menu.getHeight()/6);
+        menuRectangle.setX(480 - menu.getWidth()/3);
+        menuRectangle.setY(800 - menu.getHeight()/3);
+        menuRectangle.setSize(menu.getWidth()/3, menu.getHeight()/3);
 
     }
 
@@ -48,8 +48,8 @@ public class ShroomdexScreen implements Screen {
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
-        game.batch.draw(background, -400, -200, background.getWidth(),background.getHeight());
-        game.batch.draw(menu, 480-menu.getWidth()/6,800-menu.getHeight()/6 , menu.getWidth()/6,menu.getHeight()/6);
+        game.batch.draw(background, 0, 0, 480,800);
+        game.batch.draw(menu, 480-menu.getWidth()/3,800-menu.getHeight()/3 , menu.getWidth()/3,menu.getHeight()/3);
         game.font.draw(game.batch, "SHROOMDEX ", 60, 150);
         game.batch.end();
         if(Gdx.input.justTouched()) {

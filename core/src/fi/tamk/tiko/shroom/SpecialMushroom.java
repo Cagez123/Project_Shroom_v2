@@ -7,32 +7,33 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 /**
- * Created by Kalle on 11.3.2017.
+ * Created by Kalle on 24.3.2017.
  */
 
-public class HighscoreShroom extends Sprite {
+public class SpecialMushroom extends Sprite {
 
-    private Texture playTexture;
+    protected Texture playTexture;
+
     private float height;
     private float width;
     private float speedX;
     private float speedY;
     private float rotationAngle;
-
-
-
-    public HighscoreShroom() {
-        playTexture = new Texture("liberty_cap.png");
-        height = playTexture.getHeight();
-        width = playTexture.getWidth();
-        setX(40);
-        setY(100);
-        setBounds(getX(),getY(),width,height);
+    private float gravity = 20f;
+    protected int score;
+    protected float time;
+    public void dispose(Texture texture) {
+        texture.dispose();
     }
 
     public void move(float velocityX, float velocityY) {
         speedX = velocityX;
         speedY = velocityY;
+
+        if(velocityY !=0 || velocityX !=0) {
+            speedY = velocityY + gravity;
+        }
+
         if (speedX < 0) {
             rotationAngle += 7.0f;
         } else if (speedX > 0) {
@@ -44,13 +45,21 @@ public class HighscoreShroom extends Sprite {
         setY(getY() - speedY/2 * Gdx.graphics.getDeltaTime());
     }
 
+    public Texture getPlayTexture() {
+
+        return playTexture;
+    }
 
     public void draw(SpriteBatch batch){
         move(speedX,speedY);
         batch.draw(new TextureRegion(playTexture),getX(),getY(),width/2,height/2,width,height,1,1,getRotation());
     }
-    public void dispose() {
-        playTexture.dispose();
-    }
 
+    public int getScore() {
+        return score;
+    }
+    public float getTime() {
+        return time;
+    }
 }
+

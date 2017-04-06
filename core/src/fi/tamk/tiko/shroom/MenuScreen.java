@@ -1,6 +1,7 @@
 package fi.tamk.tiko.shroom;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -20,10 +21,14 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
     DexShroom dexShroom;
     OrthographicCamera camera;
     Texture background;
+    Texture logo;
+    Texture sign;
+
     boolean play = false;
     boolean highscore = false;
     boolean shroomdex = false;
     boolean decision = false;
+    boolean nameGiven = false;
 
     /*public class MyTextInputListener implements Input.TextInputListener {
         @Override
@@ -38,11 +43,12 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
     public MenuScreen(final Main game) {
 
         this.game = game;
-        playShroom = new PlayShroom(180, 300);
+        playShroom = new PlayShroom(140, 270);
         highscoreShroom = new HighscoreShroom();
         dexShroom = new DexShroom();
-        background = new Texture(Gdx.files.internal("background.jpg"));
-
+        background = new Texture(Gdx.files.internal("forest.png"));
+        logo = new Texture(Gdx.files.internal("FungusFrenzy.png"));
+        sign = new Texture(Gdx.files.internal("sign.png"));
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 480, 800);
@@ -50,7 +56,9 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
         GestureDetector gd = new GestureDetector(this);
         Gdx.input.setInputProcessor(gd);
 
+
     }
+
     @Override
     public void show() {
 
@@ -65,14 +73,17 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
 
-
+      //  game.setHighScore(0);
 
         game.batch.begin();
-        game.batch.draw(background, -400, 0, background.getWidth(),background.getHeight());
-
+        game.batch.draw(background, 0, 0, 480,800);
+        game.batch.draw(logo,0,500,logo.getWidth()/4,logo.getHeight()/4);
+        game.batch.draw(sign,5,-20,sign.getWidth()/1.2f, sign.getHeight()/1.2f);
         playShroom.draw(game.batch);
-        highscoreShroom.draw(game.batch);
+
         dexShroom.draw(game.batch);
+        game.fontHighScore.draw(game.batch, "HIGHSCORE", 50, 170);
+        game.fontHighScore.draw(game.batch,game.getName() + "    " + Integer.toString(game.getHighScore()),50,120);
         game.batch.end();
 
         if(playShroom.getX() < -100 || playShroom.getX() > 480 - playShroom.getWidth()) {
@@ -98,16 +109,7 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
                 }
             }
         }
-        if(highscoreShroom.getX() < -100 || highscoreShroom.getX() > 480 - highscoreShroom.getWidth()) {
-            game.setScreen(new HighscoreScreen(game));
-            decision = false;
-            dispose();
-        }
-        if(highscoreShroom.getY() < -100 || highscoreShroom.getY() > 1000 - highscoreShroom.getHeight()) {
-            game.setScreen(new HighscoreScreen(game));
-            decision = false;
-            dispose();
-        }
+
         if(!decision) {
             if (Gdx.input.isTouched()) {
 

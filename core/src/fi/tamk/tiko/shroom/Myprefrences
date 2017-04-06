@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"
+    standalone="no"?>
+<!DOCTYPE properties SYSTEM
+    "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <entry key="score1">221</entry>
+    <entry key="score2">221</entry>
+    <entry key="score3">221</entry>
+    <entry key="score4">221</entry>
+    <entry key="score5">221</entry>
+</properties>

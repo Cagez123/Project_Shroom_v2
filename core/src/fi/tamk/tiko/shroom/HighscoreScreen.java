@@ -22,6 +22,9 @@ class HighscoreScreen implements Screen {
     Rectangle menuRectangle;
 
 
+
+
+
     public HighscoreScreen(final Main game) {
         background = new Texture(Gdx.files.internal("background.jpg"));
         this.game = game;
@@ -51,8 +54,9 @@ class HighscoreScreen implements Screen {
         game.batch.begin();
         game.batch.draw(background, -400, -200, background.getWidth(),background.getHeight());
         game.batch.draw(menu, 480-menu.getWidth()/6,800-menu.getHeight()/6 , menu.getWidth()/6,menu.getHeight()/6);
-        game.font.draw(game.batch, Integer.toString(score), 20, 770);
-        game.font.draw(game.batch, "HIGHSCORE", 60, 150);
+        game.font.draw(game.batch, "HIGHSCORE", 100, 650);
+        game.font.draw(game.batch,Integer.toString(game.getHighScore()),300,500);
+        game.font.draw(game.batch,game.getName(),100,500);
         game.batch.end();
         if(Gdx.input.justTouched()) {
             Vector3 tmp = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);

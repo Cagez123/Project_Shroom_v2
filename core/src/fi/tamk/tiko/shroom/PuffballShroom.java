@@ -5,34 +5,53 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Timer;
 
 /**
- * Created by Kalle on 11.3.2017.
+ * Created by Kalle on 23.3.2017.
  */
 
-public class HighscoreShroom extends Sprite {
+public class PuffballShroom extends Mushroom {
 
-    private Texture playTexture;
     private float height;
     private float width;
     private float speedX;
     private float speedY;
     private float rotationAngle;
+    private float gravity = 20f;
+    private long delay = 3;
+    private int score = 5;
+    int sidePoints = 5;
 
 
+    public PuffballShroom(float x, float y) {
 
-    public HighscoreShroom() {
-        playTexture = new Texture("liberty_cap.png");
-        height = playTexture.getHeight();
-        width = playTexture.getWidth();
-        setX(40);
-        setY(100);
+        playTexture = new Texture("PuffBall.png");
+
+        height = playTexture.getHeight()/2.2f;
+        width = playTexture.getWidth()/2.2f;
+        setX(x);
+        setY(y);
         setBounds(getX(),getY(),width,height);
+        startTimer();
     }
-
+    public void startTimer() {
+        Timer.schedule(new Timer.Task(){
+            @Override
+            public void run() {
+                explosion = true;
+            }
+        }, delay);
+    }
     public void move(float velocityX, float velocityY) {
         speedX = velocityX;
         speedY = velocityY;
+
+        if(velocityY !=0 || velocityX !=0) {
+            speedY = velocityY + gravity;
+        }
+
         if (speedX < 0) {
             rotationAngle += 7.0f;
         } else if (speedX > 0) {
@@ -49,8 +68,20 @@ public class HighscoreShroom extends Sprite {
         move(speedX,speedY);
         batch.draw(new TextureRegion(playTexture),getX(),getY(),width/2,height/2,width,height,1,1,getRotation());
     }
+
     public void dispose() {
         playTexture.dispose();
     }
 
+    public int getScore() {
+        return score;
+    }
+    public float getTime() {
+        return time;
+    }
+    public int getSidePoints() { return sidePoints; }
+
+
 }
+
+
