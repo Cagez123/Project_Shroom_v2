@@ -23,6 +23,7 @@ public class PuffballShroom extends Mushroom {
     private long delay = 3;
     private int score = 5;
     int sidePoints = 5;
+    boolean angle;
 
 
     public PuffballShroom(float x, float y) {
@@ -33,6 +34,7 @@ public class PuffballShroom extends Mushroom {
         width = playTexture.getWidth()/2.2f;
         setX(x);
         setY(y);
+        setScale(0.6f);
         setBounds(getX(),getY(),width,height);
         startTimer();
     }
@@ -43,6 +45,23 @@ public class PuffballShroom extends Mushroom {
                 explosion = true;
             }
         }, delay);
+    }
+    public void pulsate() {
+
+        setScale(getScaleX() + 0.002f,getScaleY() + 0.002f);
+        if (angle) {
+            rotationAngle += 5.0f;
+            if(getRotation() >= 5) {
+                angle = false;
+            }
+        } else if (!angle) {
+            rotationAngle -= 5.0f;
+            if(getRotation() <= -5) {
+                angle = true;
+            }
+        }
+
+        setRotation(rotationAngle);
     }
     public void move(float velocityX, float velocityY) {
         speedX = velocityX;
@@ -66,7 +85,8 @@ public class PuffballShroom extends Mushroom {
 
     public void draw(SpriteBatch batch){
         move(speedX,speedY);
-        batch.draw(new TextureRegion(playTexture),getX(),getY(),width/2,height/2,width,height,1,1,getRotation());
+        batch.draw(new TextureRegion(playTexture),getX(),getY(),width/2,height/2,width,height,getScaleX(),getScaleY(),getRotation());
+
     }
 
     public void dispose() {

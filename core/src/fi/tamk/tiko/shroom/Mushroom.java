@@ -15,6 +15,7 @@ public abstract class Mushroom extends Sprite {
     protected Texture playTexture;
 
     public boolean flying;
+    public boolean isTouched = false;
 
     public boolean explosion = false;
 
@@ -29,10 +30,10 @@ public abstract class Mushroom extends Sprite {
     protected float time;
     protected  int sidePoints;
     protected float bonusTime;
-    public void dispose(Texture texture) {
-        texture.dispose();
-    }
 
+    public void pulsate() {
+
+    }
     public void move(float velocityX, float velocityY) {
         speedX = velocityX;
         speedY = velocityY;
@@ -60,6 +61,9 @@ public abstract class Mushroom extends Sprite {
     public void draw(SpriteBatch batch){
         move(speedX,speedY);
         batch.draw(new TextureRegion(playTexture),getX(),getY(),width/2,height/2,width,height,1,1,getRotation());
+    }
+    public void dispose() {
+        playTexture.dispose();
     }
 
     public int getScore() {

@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -27,6 +28,7 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
 
     final Main game;
     OrthographicCamera camera;
+    SpriteBatch batch;
 
     public static final int GAME_RUNNING = 0;
     public static final int GAME_PAUSED = 1;
@@ -47,7 +49,8 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
 
     long lastSpawnTime;
     Texture background;
-    Texture menu;
+    Texture pause;
+    Texture resume;
     Texture help;
     Texture backToMenu;
     Texture cap;
@@ -72,13 +75,16 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
 
     public GameScreen(final Main game) {
         this.game = game;
+
+        batch = new SpriteBatch();
         background = new Texture(Gdx.files.internal("forest.png"));
-        menu = new Texture(Gdx.files.internal("pauseButton.png"));
+        pause = new Texture(Gdx.files.internal("pauseButton.png"));
+        resume = new Texture(Gdx.files.internal("playButton.png"));
         basket = new Texture(Gdx.files.internal("basketempty.png"));
         smokeTexture = new Texture(Gdx.files.internal("cloud.png"));
         cap = new Texture(Gdx.files.internal("cap.png"));
-        help = new Texture("infoButton.png");
-        backToMenu = new Texture("menuButton.png");
+        help = new Texture(Gdx.files.internal("infoButton.png"));
+        backToMenu = new Texture(Gdx.files.internal("menuButton.png"));
 
         getBasketTexture();
         basketRectangle = new Rectangle();
@@ -87,9 +93,9 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         basketRectangle.setSize(basket.getWidth()/1.5f,basket.getHeight()/1.5f);
 
         menuRectangle = new Rectangle();
-        menuRectangle.setX(480 - menu.getWidth() / 3);
-        menuRectangle.setY(800 - menu.getHeight() / 3);
-        menuRectangle.setSize(menu.getWidth() / 3, menu.getHeight() / 3);
+        menuRectangle.setX(480 - pause.getWidth() / 3);
+        menuRectangle.setY(800 - pause.getHeight() / 3);
+        menuRectangle.setSize(pause.getWidth() / 3, pause.getHeight() / 3);
 
         backToMenuRect = new Rectangle();
         backToMenuRect.setX(300);
@@ -110,8 +116,10 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
     }
     private Texture getBasketTexture() {
         if (score >= 1000 && score < 6000) {
+            basket.dispose();
             basket = new Texture(Gdx.files.internal("basketsome.png"));
         } else if (score >= 6000) {
+            basket.dispose();
             basket = new Texture(Gdx.files.internal("Basketfull.png"));
         } else {
             basket = new Texture(Gdx.files.internal("basketempty.png"));
@@ -127,7 +135,6 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         }, 6);
     }
     private void spawnMushroom() {
-        getBasketTexture();
         int shroom = MathUtils.random(1,8);
         switch(shroom) {
             case 1: case 2: case 3: case 4: case 8: case 9:
@@ -184,7 +191,13 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
                 listener = new MyTextInputListener();
                 Gdx.input.getTextInput(listener, "New Highscore!", "", "Mushroom Master");
             }
+
+            dispose();
+            flyingMushrooms.clear();
+            mushrooms.clear();
+            removableMushrooms.clear();
             game.setScreen(new MenuScreen(game));
+
         }
 
     }
@@ -197,36 +210,35 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
-        game.batch.setProjectionMatrix(camera.combined);
-        game.batch.begin();
-        game.batch.draw(background, 0, 0, 480,800);
-        game.batch.draw(basket, 100,490,basket.getWidth(),basket.getHeight());
-        game.fontClock.draw(game.batch, String.format("%.01f",clock), 180, 640);
-        game.fontScore.draw(game.batch,"score: ", 20, 770);
-        game.fontScore.draw(game.batch,Integer.toString(score), 20, 730);
-        game.fontMultiplier.draw(game.batch, "combo: x" + Integer .toString(multiplier), 20, 700);
-        if (state == 1) {
-            game.batch.draw(cap,280,590);
-            menu = new Texture("playButton.png");
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+        batch.draw(background, 0, 0, 480,800);
+        batch.draw(basket, 100,490,basket.getWidth(),basket.getHeight());
+        game.fontClock.draw(batch, String.format("%.01f",clock), 180, 640);
+        game.fontScore.draw(batch,"score: ", 20, 770);
+        game.fontScore.draw(batch,Integer.toString(score), 20, 730);
+        game.fontMultiplier.draw(batch, "combo: x" + Integer .toString(multiplier), 20, 700);
 
-            game.batch.draw(menu, 480-menu.getWidth()/3,800-menu.getHeight()/3 , menu.getWidth()/3,menu.getHeight()/3);
-            game.batch.draw(backToMenu,300,800-backToMenu.getHeight()/3,backToMenu.getHeight()/3,backToMenu.getWidth()/3);
-            game.batch.draw(help,350,720-help.getHeight()/3,help.getHeight()/3,help.getWidth()/3);
+        if (state == 1) {
+            batch.draw(cap,280,590);
+            batch.draw(resume, 480 - resume.getWidth() / 3, 800 - resume.getHeight() / 3, resume.getWidth() / 3, resume.getHeight() / 3);
+
+
+            batch.draw(backToMenu,300,800-backToMenu.getHeight()/3,backToMenu.getHeight()/3,backToMenu.getWidth()/3);
+            batch.draw(help,350,720-help.getHeight()/3,help.getHeight()/3,help.getWidth()/3);
         }
         if (state == 0) {
-            menu = new Texture("pauseButton.png");
-
-            game.batch.draw(menu, 480 - menu.getWidth() / 3, 800 - menu.getHeight() / 3, menu.getWidth() / 3, menu.getHeight() / 3);
+            batch.draw(pause, 480-pause.getWidth()/3,800-pause.getHeight()/3 , pause.getWidth()/3,pause.getHeight()/3);
 
 
             for (Mushroom mush : mushrooms) {
-                mush.draw(game.batch);
+                mush.draw(batch);
             }
             for (Mushroom mush : flyingMushrooms) {
-                mush.draw(game.batch);
+                mush.draw(batch);
             }
             if (smoke) {
-                game.batch.draw(smokeTexture, 40, 70);
+                batch.draw(smokeTexture, -140, -140,smokeTexture.getWidth()*1.7f,smokeTexture.getHeight()*1.7f);
                 Timer.schedule(new Timer.Task() {
                     @Override
                     public void run() {
@@ -235,7 +247,7 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
                 }, explosionTimer);
             }
         }
-        game.batch.end();
+        batch.end();
 
         //STATES
         switch(state){
@@ -297,9 +309,10 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
                     }
                 }
                 //MUSHROOM ITERATOR
-                for(Mushroom mush : flyingMushrooms) {
-
+                for(final Mushroom mush : flyingMushrooms) {
+                    mush.pulsate();
                     if (mush.getBoundingRectangle().overlaps(basketRectangle)) {
+
                         if (mush.getScore() < 0) {
                             score = score + mush.getScore();
                             clock = clock + mush.getTime();
@@ -322,10 +335,25 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
                         clock = clock + mush.getBonusTime();
                         mush.flying = false;
                     }
+                    if (!mush.getTimerSet()) {
+
+                        mush.setTimerSet(true);
+
+                        Timer.schedule(new Timer.Task(){
+                            @Override
+                            public void run() {
+                                removableMushrooms.add(mush);
+
+                            }
+                        }, 2);
+                    }
+
+
 
                     removableMushrooms.add(mush);
                 }
                 for (final Mushroom mush : mushrooms) {
+                    mush.pulsate();
                     if (mush.explosion) {
                         removableMushrooms.add(mush);
                         multiplier = 1;
@@ -347,15 +375,19 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
                 if (mushrooms.size() > 8) {
                     mushrooms.remove(0);
                 }
-                for (Mushroom removable : removableMushrooms) {
+                for (final Mushroom removable : removableMushrooms) {
 
                     if(!removable.flying)
                         flyingMushrooms.remove(removable);
 
+
                     mushrooms.remove(removable);
                 }
-
+                Gdx.app.log("Flying LIST SIZE", "" + flyingMushrooms.size());
+                Gdx.app.log("mushrooms LIST SIZE", "" + mushrooms.size());
+                Gdx.app.log("removable LIST SIZE", "" + removableMushrooms.size());
                 removableMushrooms.clear();
+
                 //BACK BUTTON
                 if(Gdx.input.justTouched()) {
                     Vector3 tmp = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
@@ -374,6 +406,10 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
                         state = 0;
                     }
                     if (backToMenuRect.contains(tmp.x, tmp.y)) {
+                        dispose();
+                        mushrooms.clear();
+                        flyingMushrooms.clear();
+                        removableMushrooms.clear();
                         game.setScreen(new MenuScreen(game));
                     }
                 }
@@ -405,12 +441,22 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
     @Override
     public void dispose() {
         background.dispose();
-        menu.dispose();
+        pause.dispose();
+        resume.dispose();
         basket.dispose();
         smokeTexture.dispose();
+        backToMenu.dispose();
+        help.dispose();
+        cap.dispose();
         for (Mushroom mush : mushrooms) {
-            mush.dispose(mush.getPlayTexture());
+            mush.dispose();
         }
+        for (Mushroom mush : flyingMushrooms) {
+            mush.dispose();
+        }
+
+
+        batch.dispose();
 
     }
 
@@ -432,6 +478,19 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
             }
 
         }
+        for (Mushroom mush : flyingMushrooms) {
+            if (mush.getBoundingRectangle().contains(tmp.x, tmp.y)) {
+                touchedShroom = true;
+                Gdx.app.log("TAG", "TOUCHED");
+
+                flingMe = flyingMushrooms.get(flyingMushrooms.indexOf(mush));
+                removableMushrooms.add(flingMe);
+
+                flingMe.flying = true;
+            }
+
+        }
+
         return true;
     }
 

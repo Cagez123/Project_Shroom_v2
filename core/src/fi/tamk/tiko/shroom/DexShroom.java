@@ -50,6 +50,7 @@ public class DexShroom extends Sprite {
     }
     public void dispose() {
         playTexture.dispose();
+
     }
 
 }

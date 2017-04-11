@@ -18,14 +18,14 @@ public class EdibleShroom extends Mushroom {
     private float speedX;
     private float speedY;
     private float rotationAngle;
-    private float scalingSpeed;
-    private boolean maxScale = true;
     private int min = 1;
     private int max = 2;
     private int random;
     private float gravity = 20f;
     private int score = 10;
     float time = 0.3f;
+    boolean larger = true;
+    float maxScale = 1f;
 
     public EdibleShroom(float x, float y) {
 
@@ -39,6 +39,7 @@ public class EdibleShroom extends Mushroom {
         }
         setX(x);
         setY(y);
+        setScale(0.9f);
         setBounds(getX(),getY(),width,height);
         setSize(width,height);
     }
@@ -53,7 +54,22 @@ public class EdibleShroom extends Mushroom {
             return playTexture;
         }
     }
+    public void pulsate() {
+        if(larger) {
+            setScale(getScaleX() + 0.0025f,getScaleY() + 0.0025f);
+        }
+        if (getScaleX() >= maxScale) {
+            larger = false;
+        }
 
+        if (!larger) {
+            setScale(getScaleX() - 0.0025f, getScaleY() - 0.0025f);
+        }
+        if (getScaleX() <= 0.9) {
+            larger = true;
+        }
+
+    }
     public void move(float velocityX, float velocityY) {
         speedX = velocityX;
         speedY = velocityY;

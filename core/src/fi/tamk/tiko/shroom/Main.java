@@ -80,6 +80,10 @@ public class Main extends Game {
 	public void dispose () {
 		batch.dispose();
 		font.dispose();
+        fontHighScore.dispose();
+        fontClock.dispose();
+        fontScore.dispose();
+        fontMultiplier.dispose();
 
 	}
 }

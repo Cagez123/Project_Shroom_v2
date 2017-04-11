@@ -26,6 +26,10 @@ public class PoisonousShroom extends Mushroom {
     int sidePoints = 5;
     float time = -0.5f;
     float bonusTime = 0.3f;
+
+    boolean larger = true;
+    float maxScale = 1f;
+
     public PoisonousShroom(float x, float y) {
 
         randomTexture();
@@ -35,7 +39,9 @@ public class PoisonousShroom extends Mushroom {
         }
         setX(x);
         setY(y);
+        setScale(0.9f);
         setBounds(getX(),getY(),width,height);
+
     }
 
     public Texture randomTexture() {
@@ -47,6 +53,19 @@ public class PoisonousShroom extends Mushroom {
         return playTexture;
     }
     public void pulsate() {
+        if(larger) {
+            setScale(getScaleX() + 0.0025f,getScaleY() + 0.0025f);
+        }
+        if (getScaleX() >= maxScale) {
+            larger = false;
+        }
+
+        if (!larger) {
+            setScale(getScaleX() - 0.0025f, getScaleY() - 0.0025f);
+        }
+        if (getScaleX() <= 0.9) {
+            larger = true;
+        }
 
     }
     public void move(float velocityX, float velocityY) {
@@ -71,11 +90,13 @@ public class PoisonousShroom extends Mushroom {
 
     public void draw(SpriteBatch batch){
         move(speedX,speedY);
-        batch.draw(new TextureRegion(playTexture),getX(),getY(),width/2,height/2,width,height,1,1,getRotation());
+        batch.draw(new TextureRegion(playTexture),getX(),getY(),width/2,height/2,width,height,getScaleX(),getScaleY(),getRotation());
+
     }
 
     public void dispose() {
         playTexture.dispose();
+
     }
 
     public int getScore() {
