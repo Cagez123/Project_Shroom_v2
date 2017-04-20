@@ -32,15 +32,23 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
 
     public static final int GAME_RUNNING = 0;
     public static final int GAME_PAUSED = 1;
+    public static final int GAME_START = 2;
+    public static final int GAME_END = 3;
+    public static final int INFO_1 = 4;
+    public static final int INFO_2 = 5;
 
-    int state = 0;
+    int state = 2;
 
     float clock = 60;
+    float startClock = 3.4f;
     int score = 0;
     int multiplier = 1;
+    float timerBarWidth = 8 * clock;
 
     Mushroom flingMe;
     Mushroom mushroom;
+
+    PsykoFilter tripping;
 
     public ArrayList<Mushroom> mushrooms = new ArrayList<Mushroom>();
     public ArrayList<Mushroom> removableMushrooms = new ArrayList<Mushroom>();
@@ -55,9 +63,14 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
     Texture backToMenu;
     Texture cap;
     Texture smokeTexture;
+    Texture timerBar;
+    Texture infoPage1;
+    Texture infoPage2;
+    Texture filter;
     Rectangle menuRectangle;
     Rectangle backToMenuRect;
     Rectangle helpRectangle;
+    Rectangle infoRectangle;
 
     Texture basket;
     Rectangle basketRectangle;
@@ -65,12 +78,15 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
     boolean touchedShroom;
     boolean smoke = false;
     boolean puffballTimer = false;
+    boolean libertyCapTimer = false;
+    boolean trip = false;
     float despawnTimer = 6;
     float explosionTimer = 3;
+    float tripTimer = 3;
     float realTime;
 
     MyTextInputListener listener;
-
+    boolean accepted = false;
 
 
     public GameScreen(final Main game) {
@@ -85,6 +101,11 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         cap = new Texture(Gdx.files.internal("cap.png"));
         help = new Texture(Gdx.files.internal("infoButton.png"));
         backToMenu = new Texture(Gdx.files.internal("menuButton.png"));
+        tripping = new PsykoFilter();
+        timerBar = new Texture(Gdx.files.internal("timerBar.png"));
+        infoPage1 = new Texture(Gdx.files.internal("infoScreenPage1.png"));
+        infoPage2 = new Texture(Gdx.files.internal("infoScreenPage2.png"));
+        filter = new Texture(Gdx.files.internal("psyko.png"));
 
         getBasketTexture();
         basketRectangle = new Rectangle();
@@ -107,6 +128,11 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         helpRectangle.setY(720-help.getHeight()/3);
         helpRectangle.setSize(help.getWidth() / 3, help.getHeight() / 3);
 
+        infoRectangle = new Rectangle();
+        infoRectangle.setX(-75);
+        infoRectangle.setY(75);
+        infoRectangle.setSize(infoPage1.getWidth(), infoPage1.getHeight());
+
 
         GestureDetector gd = new GestureDetector(this);
         Gdx.input.setInputProcessor(gd);
@@ -126,6 +152,14 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         }
         return basket;
     }
+    private void spawnLibertyCap() {
+        Timer.schedule(new Timer.Task(){
+            @Override
+            public void run() {
+                libertyCapTimer = false;
+            }
+        }, 6);
+    }
     private void spawnPuffBall() {
         Timer.schedule(new Timer.Task(){
             @Override
@@ -135,21 +169,32 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         }, 6);
     }
     private void spawnMushroom() {
-        int shroom = MathUtils.random(1,8);
+        int shroom = MathUtils.random(1,10);
         switch(shroom) {
-            case 1: case 2: case 3: case 4: case 8: case 9:
+            case 1: case 2: case 3: case 4: case 5: case 6:
                 mushroom = new EdibleShroom(MathUtils.random(10, 340), MathUtils.random(10, 400));
                     break;
-            case 5: case 6:
+            case 7: case 8:
                 mushroom = new PoisonousShroom(MathUtils.random(10, 340), MathUtils.random(10, 400));
                     break;
-            case 7:
+            case 9:
                 if(!smoke && !puffballTimer){
                 mushroom = new PuffballShroom(MathUtils.random(10, 340), MathUtils.random(10, 400));
                     puffballTimer = true;
                     spawnPuffBall();
                     break;
                 } else {
+                    mushroom = new EdibleShroom(MathUtils.random(10, 340), MathUtils.random(10, 400));
+                    break;
+                }
+            case 10:
+                if(!libertyCapTimer) {
+                    mushroom = new LibertyCapShroom(MathUtils.random(10, 340), MathUtils.random(10, 400));
+                    mushroom.libertycap = true;
+                    libertyCapTimer = true;
+                    spawnLibertyCap();
+                    break;
+                }  else {
                     mushroom = new EdibleShroom(MathUtils.random(10, 340), MathUtils.random(10, 400));
                     break;
                 }
@@ -167,6 +212,7 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
             }
         }
         mushrooms.add(mushroom);
+
         lastSpawnTime =TimeUtils.millis();
     }
 
@@ -177,29 +223,34 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
     public class MyTextInputListener implements Input.TextInputListener {
         @Override
         public void input(String text) {
-            game.setName(text);
+            if(text.length() > 0 && text.length() < 7) {
+                game.setName(text);
+                accepted = true;
+            } else {
+                askName();
+            }
+
         }
 
         @Override
         public void canceled() {
+            game.setName("No One");
         }
     }
-    public void gameOver() {
-        if (clock <= 0) {
-            if(score > game.getHighScore()) {
-                game.setHighScore(score);
-                listener = new MyTextInputListener();
-                Gdx.input.getTextInput(listener, "New Highscore!", "", "Mushroom Master");
-            }
+    public void askName() {
 
-            dispose();
-            flyingMushrooms.clear();
-            mushrooms.clear();
-            removableMushrooms.clear();
-            game.setScreen(new MenuScreen(game));
-
+        listener = new MyTextInputListener();
+        if (!accepted) {
+            Gdx.input.getTextInput(listener, "New Highscore!", "", "Max 6 letters");
         }
 
+    }
+
+    public void gameOver() {
+
+        if (clock <= 0) {
+            state = 3;
+        }
     }
 
 
@@ -214,29 +265,68 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         batch.begin();
         batch.draw(background, 0, 0, 480,800);
         batch.draw(basket, 100,490,basket.getWidth(),basket.getHeight());
-        game.fontClock.draw(batch, String.format("%.01f",clock), 180, 640);
-        game.fontScore.draw(batch,"score: ", 20, 770);
-        game.fontScore.draw(batch,Integer.toString(score), 20, 730);
-        game.fontMultiplier.draw(batch, "combo: x" + Integer .toString(multiplier), 20, 700);
 
+
+        if (state == 3) {
+            game.font.draw(batch,"GAME OVER", 20, 500);
+            game.font.draw(batch,"Your score: ", 20, 450);
+            game.font.draw(batch,Integer.toString(score), 20, 400);
+            game.font.draw(batch,"Highscore: ", 20, 350);
+            game.font.draw(batch,Integer.toString(game.getHighScore()), 20, 300);
+
+            batch.draw(resume, 475 - resume.getWidth() / 3,10, resume.getWidth() / 3, resume.getHeight() / 3);
+
+            batch.draw(backToMenu,5,10,backToMenu.getHeight()/3,backToMenu.getWidth()/3);
+
+        }
+        if (state == 2) {
+            game.fontScore.draw(batch,"score: ", 20, 770);
+            game.fontScore.draw(batch,Integer.toString(score), 20, 730);
+            game.fontMultiplier.draw(batch, "combo: x" + Integer .toString(multiplier), 20, 700);
+            batch.draw(timerBar,0,0,timerBarWidth,20);
+            game.fontMultiplier.draw(batch, String.format("%.01f",clock), 0, 40);
+
+            if (startClock <= 0.5) {
+                game.font.draw(batch, "GO!", 180, 400);
+            } else {
+                game.font.draw(batch, String.format("%.0f",startClock), 180, 400);
+            }
+        }
         if (state == 1) {
             batch.draw(cap,280,590);
             batch.draw(resume, 480 - resume.getWidth() / 3, 800 - resume.getHeight() / 3, resume.getWidth() / 3, resume.getHeight() / 3);
-
 
             batch.draw(backToMenu,300,800-backToMenu.getHeight()/3,backToMenu.getHeight()/3,backToMenu.getWidth()/3);
             batch.draw(help,350,720-help.getHeight()/3,help.getHeight()/3,help.getWidth()/3);
         }
         if (state == 0) {
+            if (score < 0){
+                score = 0;
+            }
+            game.fontScore.draw(batch,"score: ", 20, 770);
+            game.fontScore.draw(batch,Integer.toString(score), 20, 730);
+            game.fontMultiplier.draw(batch, "combo: x" + Integer .toString(multiplier), 20, 700);
+            game.fontMultiplier.draw(batch, String.format("%.01f",clock), 0, 40);
             batch.draw(pause, 480-pause.getWidth()/3,800-pause.getHeight()/3 , pause.getWidth()/3,pause.getHeight()/3);
-
-
+            batch.draw(timerBar,0,0,timerBarWidth,20);
+            Gdx.app.log("TAG", " " + trip );
             for (Mushroom mush : mushrooms) {
                 mush.draw(batch);
             }
             for (Mushroom mush : flyingMushrooms) {
                 mush.draw(batch);
             }
+
+            if (trip){
+                tripping.draw(batch);
+                Timer.schedule(new Timer.Task() {
+                    @Override
+                    public void run() {
+                        trip = false;
+                    }
+                }, tripTimer);
+            }
+
             if (smoke) {
                 batch.draw(smokeTexture, -140, -140,smokeTexture.getWidth()*1.7f,smokeTexture.getHeight()*1.7f);
                 Timer.schedule(new Timer.Task() {
@@ -247,12 +337,73 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
                 }, explosionTimer);
             }
         }
+        if (state == 4){
+            batch.draw(cap,280,590);
+            batch.draw(resume, 480 - resume.getWidth() / 3, 800 - resume.getHeight() / 3, resume.getWidth() / 3, resume.getHeight() / 3);
+
+            batch.draw(backToMenu,300,800-backToMenu.getHeight()/3,backToMenu.getHeight()/3,backToMenu.getWidth()/3);
+            batch.draw(help,350,720-help.getHeight()/3,help.getHeight()/3,help.getWidth()/3);
+            batch.draw(infoPage1, -75, 75, infoPage1.getWidth()*1.1f,infoPage1.getHeight()*1.1f);
+        }
+        if (state == 5){
+            batch.draw(cap,280,590);
+            batch.draw(resume, 480 - resume.getWidth() / 3, 800 - resume.getHeight() / 3, resume.getWidth() / 3, resume.getHeight() / 3);
+
+            batch.draw(backToMenu,300,800-backToMenu.getHeight()/3,backToMenu.getHeight()/3,backToMenu.getWidth()/3);
+            batch.draw(help,350,720-help.getHeight()/3,help.getHeight()/3,help.getWidth()/3);
+            batch.draw(infoPage2, -75, 75, infoPage2.getWidth()*1.1f,infoPage2.getHeight()*1.1f);
+        }
         batch.end();
 
         //STATES
         switch(state){
+            case  GAME_END:
+
+                menuRectangle.setX( 475 - resume.getWidth() / 3);
+                menuRectangle.setY(10);
+                backToMenuRect.setX(5);
+                backToMenuRect.setY(10);
+                if (score > game.getHighScore()) {
+                    game.setHighScore(score);
+                    askName();
+                }
+                if(Gdx.input.justTouched()) {
+                    Vector3 tmp = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+                    camera.unproject(tmp);
+                    if (menuRectangle.contains(tmp.x, tmp.y)) {
+                        mushrooms.clear();
+                        flyingMushrooms.clear();
+                        removableMushrooms.clear();
+                        clock = 60;
+                        realTime = 0;
+                        score = 0;
+                        startClock = 3.4f;
+                        state = 2;
+                        multiplier = 1;
+                    }
+                    if (backToMenuRect.contains(tmp.x, tmp.y)) {
+                        dispose();
+                        mushrooms.clear();
+                        flyingMushrooms.clear();
+                        removableMushrooms.clear();
+                        game.setScreen(new MenuScreen(game));
+                    }
+                }
+
+                break;
+            case GAME_START:
+                startClock-=delta;
+                if (startClock <= -0.5f) {
+                    state = 0;
+                }
+                break;
             case GAME_RUNNING:
+                menuRectangle.setX(480 - pause.getWidth() / 3);
+                menuRectangle.setY(800 - pause.getHeight() / 3);
+                backToMenuRect.setX(300);
+                backToMenuRect.setY(800 - backToMenu.getHeight() / 3);
                 clock-=delta;
+                timerBarWidth = 8 * clock;
                 realTime+=delta;
                 gameOver();
 
@@ -316,12 +467,14 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
                         if (mush.getScore() < 0) {
                             score = score + mush.getScore();
                             clock = clock + mush.getTime();
+                            getBasketTexture();
                             mush.flying = false;
                             multiplier = 1;
                         } else {
                             score = score + mush.getScore() * multiplier;
                             clock = clock + mush.getTime();
                             mush.flying = false;
+                            getBasketTexture();
                             if(multiplier <= 9) {
                                 multiplier = multiplier + 1;
                             } else {
@@ -354,6 +507,7 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
                 }
                 for (final Mushroom mush : mushrooms) {
                     mush.pulsate();
+
                     if (mush.explosion) {
                         removableMushrooms.add(mush);
                         multiplier = 1;
@@ -383,9 +537,9 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
 
                     mushrooms.remove(removable);
                 }
-                Gdx.app.log("Flying LIST SIZE", "" + flyingMushrooms.size());
+                /*Gdx.app.log("Flying LIST SIZE", "" + flyingMushrooms.size());
                 Gdx.app.log("mushrooms LIST SIZE", "" + mushrooms.size());
-                Gdx.app.log("removable LIST SIZE", "" + removableMushrooms.size());
+                Gdx.app.log("removable LIST SIZE", "" + removableMushrooms.size());*/
                 removableMushrooms.clear();
 
                 //BACK BUTTON
@@ -396,6 +550,8 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
                         state = 1;
                     }
                 }
+
+
                 break;
             case GAME_PAUSED:
 
@@ -412,8 +568,52 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
                         removableMushrooms.clear();
                         game.setScreen(new MenuScreen(game));
                     }
+                    if (helpRectangle.contains(tmp.x, tmp.y)) {
+                        state = 4;
+                    }
                 }
                 break;
+            case INFO_1:
+                if(Gdx.input.justTouched()) {
+                    Vector3 tmp = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+                    camera.unproject(tmp);
+                    if (menuRectangle.contains(tmp.x, tmp.y)) {
+                        state = 0;
+                    }
+                    if (backToMenuRect.contains(tmp.x, tmp.y)) {
+                        dispose();
+                        mushrooms.clear();
+                        flyingMushrooms.clear();
+                        removableMushrooms.clear();
+                        game.setScreen(new MenuScreen(game));
+                    }
+                    if (infoRectangle.contains (tmp.x, tmp.y)){
+                        state = 5;
+                    }
+
+                }
+                break;
+            case INFO_2:
+                if(Gdx.input.justTouched()) {
+                    Vector3 tmp = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+                    camera.unproject(tmp);
+                    if (menuRectangle.contains(tmp.x, tmp.y)) {
+                        state = 0;
+                    }
+                    if (backToMenuRect.contains(tmp.x, tmp.y)) {
+                        dispose();
+                        mushrooms.clear();
+                        flyingMushrooms.clear();
+                        removableMushrooms.clear();
+                        game.setScreen(new MenuScreen(game));
+                    }
+                    if (infoRectangle.contains (tmp.x, tmp.y)){
+                        state = 4;
+                    }
+
+                }
+
+
         }
 
     }
@@ -448,6 +648,8 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         backToMenu.dispose();
         help.dispose();
         cap.dispose();
+        infoPage1.dispose();
+        infoPage2.dispose();
         for (Mushroom mush : mushrooms) {
             mush.dispose();
         }
@@ -470,11 +672,20 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
                 touchedShroom = true;
                 Gdx.app.log("TAG", "TOUCHED");
 
-                flingMe = mushrooms.get(mushrooms.indexOf(mush));
-                flyingMushrooms.add(flingMe);
-                removableMushrooms.add(flingMe);
+                if (mush.libertycap) {
+                    // TRIP
+                    trip = true;
+                    removableMushrooms.add(mush);
 
-                flingMe.flying = true;
+
+
+                } else {
+                    flingMe = mushrooms.get(mushrooms.indexOf(mush));
+                    flyingMushrooms.add(flingMe);
+                    removableMushrooms.add(flingMe);
+
+                    flingMe.flying = true;
+                }
             }
 
         }

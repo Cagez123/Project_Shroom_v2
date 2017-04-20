@@ -19,7 +19,7 @@ public class PoisonousShroom extends Mushroom {
     private float speedY;
     private float rotationAngle;
     private int min = 1;
-    private int max = 1;
+    private int max = 2;
     private int random;
     private float gravity = 20f;
     int score = -50;
@@ -33,10 +33,10 @@ public class PoisonousShroom extends Mushroom {
     public PoisonousShroom(float x, float y) {
 
         randomTexture();
-        if(random == 1) {
+
             height = playTexture.getHeight() / 2;
             width = playTexture.getWidth() / 2;
-        }
+
         setX(x);
         setY(y);
         setScale(0.9f);
@@ -47,7 +47,10 @@ public class PoisonousShroom extends Mushroom {
     public Texture randomTexture() {
         random = MathUtils.random(min, max);
         if(random == 1) {
-            playTexture = new Texture("amanita2.png");
+            playTexture = new Texture("kärpässieniglow.png");
+            return playTexture;
+        }else if(random == 2) {
+            playTexture = new Texture("ValkokärpäsSieniglow.png");
             return playTexture;
         }
         return playTexture;

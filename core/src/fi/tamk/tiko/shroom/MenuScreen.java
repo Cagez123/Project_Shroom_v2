@@ -31,10 +31,8 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
 
 
     boolean play = false;
-    boolean highscore = false;
     boolean shroomdex = false;
-    boolean decision = false;
-    boolean nameGiven = false;
+
 
     /*public class MyTextInputListener implements Input.TextInputListener {
         @Override
@@ -50,7 +48,7 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
         batch = new SpriteBatch();
         this.game = game;
         playShroom = new PlayShroom(140, 270);
-        hand = new GhostHand();
+       // hand = new GhostHand();
         dexShroom = new DexShroom();
         background = new Texture(Gdx.files.internal("forest.png"));
         logo = new Texture(Gdx.files.internal("FungusFrenzy.png"));
@@ -86,7 +84,7 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
         batch.draw(logo,0,500,logo.getWidth()/4,logo.getHeight()/4);
         batch.draw(sign,5,-20,sign.getWidth()/1.2f, sign.getHeight()/1.2f);
         playShroom.draw(batch);
-        hand.draw(batch);
+       // hand.draw(batch);
         dexShroom.draw(batch);
         game.fontHighScore.draw(batch, "HIGHSCORE", 50, 170);
         game.fontHighScore.draw(batch,game.getName() + "    " + Integer.toString(game.getHighScore()),50,120);
@@ -95,56 +93,30 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
         if(playShroom.getX() < -100 || playShroom.getX() > 480 - playShroom.getWidth()) {
             dispose();
             game.setScreen(new GameScreen(game));
-            decision = false;
 
         }
         if(playShroom.getY() < -100 || playShroom.getY() > 1000 - playShroom.getHeight()) {
             dispose();
             game.setScreen(new GameScreen(game));
-            decision = false;
 
-        }
-        if(!decision) {
 
-            if (Gdx.input.isTouched()) {
-
-                Vector3 tmp = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-                camera.unproject(tmp);
-                if (playShroom.getBoundingRectangle().contains(tmp.x, tmp.y)) {
-                    play = true;
-                    Gdx.app.log("TAG", "TOUCHED");
-                    decision = true;
-                }
-            }
         }
 
 
         if(dexShroom.getX() < -100 || dexShroom.getX() > 480 - dexShroom.getWidth()) {
             dispose();
             game.setScreen(new ShroomdexScreen(game));
-            decision = false;
-            game.dispose();
+
 
         }
         if(dexShroom.getY() < -100 || dexShroom.getY() > 1000 - dexShroom.getHeight()) {
             dispose();
             game.setScreen(new ShroomdexScreen(game));
-            decision = false;
+
 
         }
-        if(!decision) {
 
-            if (Gdx.input.isTouched()) {
 
-                Vector3 tmp = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-                camera.unproject(tmp);
-                if (dexShroom.getBoundingRectangle().contains(tmp.x, tmp.y)) {
-                    shroomdex = true;
-                    Gdx.app.log("TAG", "TOUCHED");
-                    decision = true;
-                }
-            }
-        }
 
 
     }
@@ -173,7 +145,7 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
     public void dispose() {
         playShroom.dispose();
         dexShroom.dispose();
-        hand.dispose();
+       // hand.dispose();
         background.dispose();
         sign.dispose();
         logo.dispose();
@@ -183,7 +155,17 @@ public class MenuScreen implements Screen, GestureDetector.GestureListener {
 
     @Override
     public boolean touchDown(float x, float y, int pointer, int button) {
-        return false;
+        Vector3 tmp = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        camera.unproject(tmp);
+        if (dexShroom.getBoundingRectangle().contains(tmp.x, tmp.y)) {
+            shroomdex = true;
+            Gdx.app.log("TAG", "TOUCHED");
+        }
+        if (playShroom.getBoundingRectangle().contains(tmp.x, tmp.y)) {
+            play = true;
+            Gdx.app.log("TAG", "TOUCHED");
+        }
+        return true;
     }
 
     @Override

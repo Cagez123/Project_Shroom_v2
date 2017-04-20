@@ -28,10 +28,10 @@ public class PuffballShroom extends Mushroom {
 
     public PuffballShroom(float x, float y) {
 
-        playTexture = new Texture("PuffBall.png");
+        playTexture = new Texture("Savusieniglow.png");
 
-        height = playTexture.getHeight()/2.2f;
-        width = playTexture.getWidth()/2.2f;
+        height = playTexture.getHeight() / 1.2f;
+        width = playTexture.getWidth() / 1.2f;
         setX(x);
         setY(y);
         setScale(0.6f);

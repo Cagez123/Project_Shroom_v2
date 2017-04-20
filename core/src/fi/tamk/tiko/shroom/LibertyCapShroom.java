@@ -2,37 +2,57 @@ package fi.tamk.tiko.shroom;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Timer;
 
 /**
- * Created by Kalle on 23.3.2017.
+ * Created by Kalle on 19.4.2017.
  */
 
-public abstract class Mushroom extends Sprite {
+public class LibertyCapShroom extends Mushroom {
 
-    protected Texture playTexture;
-
-    public boolean flying;
-    public boolean isTouched = false;
-    public boolean libertycap = false;
-    public boolean explosion = false;
-
-    private boolean timerSet;
     private float height;
     private float width;
     private float speedX;
     private float speedY;
     private float rotationAngle;
     private float gravity = 20f;
-    protected int score;
-    protected float time;
-    protected  int sidePoints;
-    protected float bonusTime;
+
+    private int score = 5;
+    int sidePoints = 5;
+    boolean angle;
+
+
+    public LibertyCapShroom(float x, float y) {
+
+        playTexture = new Texture("Madonlakkiglow.png");
+
+        height = playTexture.getHeight();
+        width = playTexture.getWidth();
+        setX(x);
+        setY(y);
+        setScale(0.6f);
+        setBounds(getX(),getY(),width,height);
+
+    }
 
     public void pulsate() {
 
+
+        if (angle) {
+            rotationAngle += .5f;
+            if(getRotation() >= 5) {
+                angle = false;
+            }
+        } else if (!angle) {
+            rotationAngle -= .5f;
+            if(getRotation() <= -5) {
+                angle = true;
+            }
+        }
+
+        setRotation(rotationAngle);
     }
     public void move(float velocityX, float velocityY) {
         speedX = velocityX;
@@ -53,15 +73,13 @@ public abstract class Mushroom extends Sprite {
         setY(getY() - speedY/2 * Gdx.graphics.getDeltaTime());
     }
 
-    public Texture getPlayTexture() {
-
-        return playTexture;
-    }
 
     public void draw(SpriteBatch batch){
         move(speedX,speedY);
-        batch.draw(new TextureRegion(playTexture),getX(),getY(),width/2,height/2,width,height,1,1,getRotation());
+        batch.draw(new TextureRegion(playTexture),getX(),getY(),width/2,0,width,height,getScaleX(),getScaleY(),getRotation());
+
     }
+
     public void dispose() {
         playTexture.dispose();
     }
@@ -73,12 +91,7 @@ public abstract class Mushroom extends Sprite {
         return time;
     }
     public int getSidePoints() { return sidePoints; }
-    public float getBonusTime() { return bonusTime; }
-    public boolean getTimerSet() { return timerSet; }
-    public void setTimerSet(boolean timerSet) {
 
-        this.timerSet = timerSet;
-    }
+
 }
-
 

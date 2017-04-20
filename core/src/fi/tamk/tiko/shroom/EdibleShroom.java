@@ -19,7 +19,7 @@ public class EdibleShroom extends Mushroom {
     private float speedY;
     private float rotationAngle;
     private int min = 1;
-    private int max = 2;
+    private int max = 4;
     private int random;
     private float gravity = 20f;
     private int score = 10;
@@ -30,13 +30,10 @@ public class EdibleShroom extends Mushroom {
     public EdibleShroom(float x, float y) {
 
         randomTexture();
-        if(random == 1) {
+
             height = playTexture.getHeight()/2;
             width = playTexture.getWidth()/2;
-        } else if(random == 2) {
-            height = playTexture.getHeight()/2;
-            width = playTexture.getWidth()/2;
-        }
+
         setX(x);
         setY(y);
         setScale(0.9f);
@@ -47,12 +44,20 @@ public class EdibleShroom extends Mushroom {
     public Texture randomTexture() {
         random = MathUtils.random(min, max);
         if(random == 1) {
-            playTexture = new Texture("Herkkutatti.png");
+            playTexture = new Texture("Herkkutattiglow.png");
             return playTexture;
-        } else {
-            playTexture = new Texture("Kanttarelli.png");
+        } else if (random == 2) {
+            playTexture = new Texture("Kanttarelliglow.png");
+            return playTexture;
+        } else if (random == 3) {
+            playTexture = new Texture("Isohaperoglow.png");
+            return playTexture;
+        } else if (random == 4) {
+            playTexture = new Texture("Mustatorvisieniglow.png");
             return playTexture;
         }
+        return playTexture;
+
     }
     public void pulsate() {
         if(larger) {
